@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive' # 自动拉取 themes 里的主题插件
+          submodules: 'false' # 自动拉取 themes 里的主题插件
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
