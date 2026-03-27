@@ -35,12 +35,13 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-          # 1. 过滤掉 Token 里可能带有的换行符(\n)、回车符(\r)和空格
+          # 2. 清洗 Token 并配置全局身份验证（核心：让 Git 记住这个 Token）
           CLEAN_TOKEN=$(echo -n "${GH_TOKEN}" | tr -d '\n' | tr -d '\r' | tr -d ' ')
+          git config --global url."https://${CLEAN_TOKEN}@github.com/".insteadOf "https://github.com/"
           
-          # 2. 替换 _config.yml，注意使用的是清洗后的 CLEAN_TOKEN，去掉了多余的中括号
-          sed -i "s|repo:.*|repo: https://${CLEAN_TOKEN}@github.com/klklkl10086/klklkl10086.github.io.git|g" _config.yml
-          
+          # 3. 确保 _config.yml 里的 repo 地址是标准的 HTTPS 格式
+          # 注意：这里直接写死你的静态仓库地址，不要带 [ ] 符号
+          sed -i "s|repo:.*|repo: https://github.com/klklkl10086/klklkl10086.github.io.git|g" _config.yml
           npx hexo clean
           npx hexo generate
           npx hexo deploy
