@@ -4,8 +4,8 @@
 
 # Site
 title: klklkl's blogs
-subtitle: '学习笔记 一些思考'
-description: '记录本人的学习生活相关'
+subtitle: '学习笔记和一些思考'
+description: '学习与思考的痕迹'
 keywords:
 author: klklkl
 language: zh-CN
@@ -13,7 +13,8 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url:  https://comeupklklkl.gitee.io/jluloser.github.io
+url: https://klklkl10086.github.io/klklkl10086.github.io
+root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -106,5 +107,18 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: 'git'
-  repository: git@gitee.com:comeupklklkl/jluloser.github.io.git
+  repository: https://github.com/klklkl10086/klklkl10086.github.io.git
   branch: master
+
+
+markdown:
+  render:
+    html: true
+    xhtmlOut: false
+    breaks: true
+    linkify: true
+    typographer: true
+  plugins:
+  anchors:
+    level: 1
+    collisionSuffix: ''
