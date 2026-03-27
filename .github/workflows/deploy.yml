@@ -32,9 +32,12 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-          # 这一步很关键：它会临时修改配置，让 Hexo 有权推送到你的静态仓库
-          # 请将下方 [USER] 替换为你的用户名
-          sed -i "s|repo:.*|repo: repo: https://${GH_TOKEN}@github.com/klklkl10086/klklkl10086.github.io.git" _config.yml
+          # 1. 过滤掉 Token 里可能带有的换行符(\n)、回车符(\r)和空格
+          CLEAN_TOKEN=$(echo -n "${GH_TOKEN}" | tr -d '\n' | tr -d '\r' | tr -d ' ')
+          
+          # 2. 替换 _config.yml，注意使用的是清洗后的 CLEAN_TOKEN，去掉了多余的中括号
+          sed -i "s|repo:.*|repo: https://${CLEAN_TOKEN}@github.com/klklkl10086/klklkl10086.github.io.git|g" _config.yml
           
           npx hexo clean
+          npx hexo generate
           npx hexo deploy
