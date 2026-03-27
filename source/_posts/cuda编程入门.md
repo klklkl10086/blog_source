@@ -4,6 +4,7 @@ date: 2026-3-1 20:46:44
 tags: ["CUDA","CPP"]
 categories: ["AI Infra"]
 typora-root-url: ./cuda编程入门
+description: 简单的cuda入门学习笔记,从基础到常量内存
 ---
 
 
