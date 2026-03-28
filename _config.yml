@@ -13,7 +13,8 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://klklkl10086.github.io/klklkl10086.github.io
+# URL 修复 (顺便把之前发现的 URL 错误也改了)
+url: https://klklkl10086.github.io
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -111,6 +112,7 @@ deploy:
   branch: master
 
 
+# Markdown-it 配置
 markdown:
   render:
     html: true
@@ -118,7 +120,15 @@ markdown:
     breaks: true
     linkify: true
     typographer: true
+    quotes: '“”‘’'
   plugins:
-  anchors:
-    level: 1
-    collisionSuffix: ''
+    - markdown-it-abbr
+    - markdown-it-footnote
+    - markdown-it-ins
+    - markdown-it-sub
+    - markdown-it-sup
+  # 关键设置：即使不加空行也能识别列表
+  options:
+    html: true
+    breaks: true
+    linkify: true
