@@ -4,6 +4,7 @@ date: 2024-11-28 14:48:29
 tags: [Machine Learning]
 categories: class
 typora-root-url: ./机器学习B
+mathjax: true
 ---
 
 

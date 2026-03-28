@@ -4,6 +4,7 @@ date: 2025-12-07 21:07:22
 tags: ["深度学习","Transformer"]
 categories: ["研究生补完"]
 typora-root-url: ./从0实现LLM
+mathjax: true
 ---
 
 

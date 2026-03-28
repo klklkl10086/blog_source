@@ -3,6 +3,7 @@ title: 题解--Codeforces Round 680 [C. Division]
 date: 2024-10-02 22:44:09
 tags: [题解,codeforces,质因数分解]
 categories: 算法
+mathjax: true
 typora-root-url: ./cf
 typora-copy-images-to: ./cf
 ---
