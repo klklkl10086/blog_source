@@ -21,15 +21,13 @@ description: 简单的cuda入门学习笔记,从基础到常量内存
 
 # GPU架构
 
+![img](0952896bf4e84b4b3443f786d725a9f6.png)
+
+
+
 
 
 ![img](gpu_sm.png)
-
-![image-20260323222725390](image-20260323222725390.png)
-
-流式多处理器（Streaming Multiprocessor、SM）是 GPU 的基本单元，每个 GPU 都由一组 SM 构成，SM 中最重要的结构就是计算核心 Core
-
-
 
 
 
@@ -328,7 +326,7 @@ Hello from block 0 and thread 3, global id 3
 
 
 
-# NVCC编译流程和GPU计算能力
+# *NVCC编译流程和GPU计算能力
 
 ## NVCC编译流程
 
@@ -2287,7 +2285,11 @@ int main()
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
     printf("GPU 运行耗时: %f ms\n", milliseconds);
-
+	
+    // 清理
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
+    
     FILE *fp = fopen("output.ppm", "wb");
     if (fp)
     {
@@ -2441,7 +2443,9 @@ int main()
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
     printf("GPU 运行耗时: %f ms\n", milliseconds);
-
+	// 清理
+	cudaEventDestroy(start);
+	cudaEventDestroy(stop);
     FILE *fp = fopen("output.ppm", "wb");
     if (fp)
     {
