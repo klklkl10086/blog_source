@@ -3,7 +3,7 @@
 # --------------------------------------
 
 nav:
-  logo: https://pic2.zhimg.com/v2-f9b32b95385eedbdb58389bbbce5de39_r.jpg# image
+  logo: https://pic2.zhimg.com/v2-f9b32b95385eedbdb58389bbbce5de39_r.jpg
   display_title: true
   fixed: false # fixed navigation bar
 
@@ -27,7 +27,7 @@ highlight_theme: pale night #  darker / pale night / light / ocean / mac / mac l
 highlight_copy: true # copy button
 highlight_lang: true # show the code language
 highlight_shrink: false # true: shrink the code blocks / false: expand the code blocks | none: expand code blocks and hide the button
-highlight_height_limit: false # unit: px
+highlight_height_limit: 300 # unit: px
 code_word_wrap: true
 
 # Social Settings (社交圖標設置)
@@ -343,7 +343,7 @@ rightside_item_order:
 # MathJax
 mathjax:
   enable: true
-  per_page: true
+  per_page: false
 
 # KaTeX
 katex:
@@ -834,7 +834,7 @@ note:
 # It may contain bugs and unstable, give feedback when you find the bugs.
 # https://github.com/MoOx/pjax
 pjax:
-  enable: false
+  enable: true
   exclude:
     # - xxxx
     # - xxxx

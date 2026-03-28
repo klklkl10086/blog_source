@@ -111,8 +111,7 @@ deploy:
   repository: https://github.com/klklkl10086/klklkl10086.github.io.git
   branch: master
 
-
-# Markdown-it 配置
+# Markdown-it 渲染配置
 markdown:
   render:
     html: true
@@ -120,15 +119,17 @@ markdown:
     breaks: true
     linkify: true
     typographer: true
-    quotes: '“”‘’'
+  options:
+    lists_without_preceding_blankline: true
   plugins:
+    - name: markdown-it-anchor
+      options:
+        level: 1
+        permalink: false
+        # 直接使用 JS 原生函数处理标题字符串，确保与 Hexo 目录逻辑匹配
+        slugify: !!js/function "function(s) { return String(s).trim().toLowerCase().replace(/\\s+/g, '-'); }"
     - markdown-it-abbr
     - markdown-it-footnote
     - markdown-it-ins
     - markdown-it-sub
     - markdown-it-sup
-  # 关键设置：即使不加空行也能识别列表
-  options:
-    html: true
-    breaks: true
-    linkify: true
