@@ -337,7 +337,7 @@ C++11 引入了 `auto` 和 `decltype` 两种自动类型推导机制。
 
 ### 基本用法
 -   **声明变量**：`auto x = 5;` （`x` 为 `int`）
--   **声明指针/引用**：`auto` 会自动剥离顶层 `const` 和引用，除非显示声明或者包含引用、指针。
+-   **声明指针/引用**：`auto` 会自动剥离**顶层** `const` 和`volatile`，除非显示声明。
     
     ```cpp
     int a = 10;
@@ -363,15 +363,18 @@ C++11 引入了 `auto` 和 `decltype` 两种自动类型推导机制。
 >   int* const p = &x;       // p 是顶层 const：p 的指向不可变（但 *p 可修改）
 >   const int* const cp = &x; // cp 既是顶层 const（指针本身）又是底层 const（指向 const int）
 >   ```
->
+
+
+
 > 底层:**表示指针（或引用）所指的对象是常量**，即通过该指针/引用不能修改所指对象的值。
 >
 > - 对于**指针**，底层 `const` 出现在 `*` 的左边，例如 `const int*`。
 >
 > - 对于**引用**，所有 `const` 引用（`const T&`）都是底层 `const`，因为引用本身不是对象，无法被设为“引用本身不可改”，所以 `const` 修饰的是所指对象。
 >
+> 
 > - ```cpp
->   const int* p = &x;       // p 是底层 const：不能通过 p 修改 x
+>   const int* p = &x;       //p是指向常量的指针，因此 p 是底层 const：不能通过 p 修改 x
 >   int const* p2 = &x;      // 同上，底层 const
 >   const int& r = x;        // r 是底层 const：不能通过 r 修改 x
 >   ```
@@ -399,10 +402,10 @@ auto &c = temp;	//c是int&, auto推测的类型是int
 auto d = temp;	//d是int , auto推测的类型是int
 
 int tmp = 250;
-const auto a1 = tmp;	//a1是const int , auto推测为int
-auto a2 = a1;			//a2是int , auto推测为int
+const auto a1 = tmp;	//显示声明了const a1是const int , auto推测为int
+auto a2 = a1;			//顶层const 则剥离 因此a2是int , auto推测为int
 const auto &a3 = tmp;	//a3是const int & , auto推测为int
-auto &a4 = a3;			// a4是const int& , auto推测为const int
+auto &a4 = a3;			// 底层const 保留，因此a4是const int& , auto推测为const int
 
 
 作者: 苏丙榅
