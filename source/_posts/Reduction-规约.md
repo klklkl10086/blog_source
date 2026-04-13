@@ -1161,10 +1161,12 @@ int main()
 
 > 相较于传统的共享内存（Shared Memory）规约，Shuffle 具有压倒性的优势：
 >
-> 1. **零内存分配：** 不需要申请 `__shared__` 内存，省去了极其宝贵的共享内存资源。
+> 1. **零内存分配：** 不需要申请 `__shared__` 内存，允许**同一个Warp（包含32个线程）内的线程直接读取彼此的寄存器数据**，省去了极其宝贵的共享内存资源。
 > 2. **零显式同步：** 不需要写 `__syncthreads()` 或 `__syncwarp()`。Shuffle 指令本身就带有隐式的 Warp 内同步语义。
 > 3. **极低延迟：** 寄存器到寄存器的直接通信，速度远超共享内存的读写。
 > 4. **无 Bank Conflict：** 既然不用共享内存，自然就彻底告别了令人头疼的 Bank Conflict 问题。
+
+
 
 ## 使用方法
 
@@ -1174,14 +1176,14 @@ int main()
 
  `__shfl_down_sync(mask, var, delta)`：向下传（最常用于 Reduction）
 
-- **作用：** 当前线程去拿取 ID 比自己**大** `delta` 的那个线程手里的 `var` 值。
-- **越界处理：** 如果加上 `delta` 超过了 31，拿到的就是自己原本的值。
+- **作用：** 当前线程去拿取 ID 比自己**大** `delta` 的那个线程手里的 `var` 值作为返回值。
+- **越界处理：** 如果加上 `delta` 超过了 31，值保持不变，返回自己的值。
 
 
 
  `__shfl_up_sync(mask, var, delta)`：向上传（常用于 Prefix Sum / Scan）
 
-- **作用：** 当前线程去拿取 ID 比自己**小** `delta` 的那个线程手里的 `var` 值。
+- **作用：** 当前线程去拿取 ID 比自己**小** `delta` 的那个线程手里的 `var` 值作为返回值。
 
 
 
@@ -1196,3 +1198,48 @@ int main()
 - **作用：** 当前线程会和另一个线程交换数据，那个线程的 ID 是 `当前线程 ID ^ laneMask`（按位异或）。
 
   
+
+ 利用`__shfl_down_sync()`,将之前的代码进行优化:
+
+```CPP
+template<int BLOCKNUM,int NUMSPERTHREAD>//block的数量   每个线程要负责的数字个数
+__global__ void reduction(float* a,float* res)
+{
+    float sum = 0.f;
+    for(int i=0;i<NUMSPERTHREAD;i++)
+    {
+        int tidx = threadIdx.x+blockIdx.x*blockDim.x + i*BLOCKNUM*blockDim.x;//在Grid的位置+偏移量
+       sum += a[tidx];
+    }
+    sum+=__shfl_down_sync(0xffffffff,sum,16);//一个wrap有32个thread
+    sum+=__shfl_down_sync(0xffffffff,sum,8);
+    sum+=__shfl_down_sync(0xffffffff,sum,4);
+    sum+=__shfl_down_sync(0xffffffff,sum,2);
+    sum+=__shfl_down_sync(0xffffffff,sum,1);//最终wrap的第0个thread(lane 0)的sum为该wrap的总和
+    __shared__ float WrapSum[32];//1个block最多有32个wrap
+    int tidx = threadIdx.x;
+    const int lanIdx = tidx%32;
+    const int wrapIdx = tidx/32;
+    const int wrapNum = ThreadsPerBlock/32;
+    if(lanIdx==0)
+    {
+        WrapSum[wrapIdx]=sum;//将一个wrap的总和赋值给WrapSum
+    }
+    __syncthreads();//同步所有wrap
+    //对WrapSum规约求和,将WrapSum转移到Wrap0中进行计算,然后对wrap0进行shuffle
+    if(wrapIdx==0)
+    {
+        sum=(lanIdx < wrapNum ? WrapSum[lanIdx]:0.f);
+        sum+=__shfl_down_sync(0xffffffff,sum,16);//lan16~lan31越界返回自己的值
+        sum+=__shfl_down_sync(0xffffffff,sum,8);
+        sum+=__shfl_down_sync(0xffffffff,sum,4);
+        sum+=__shfl_down_sync(0xffffffff,sum,2);
+        sum+=__shfl_down_sync(0xffffffff,sum,1);
+    }
+
+
+    if(threadIdx.x==0)
+        res[blockIdx.x] = sum;
+}
+```
+
