@@ -6,9 +6,11 @@ categories: ["研究生补完"]
 description: 补足一下cpp的知识
 ---
 
-# cpp11--多线程
+> [C++11 多线程编程-小白零基础到手撕线程池](https://www.bilibili.com/video/BV1d841117SH/?p=7&share_source=copy_web&vd_source=777aaa8a415b68222e598d976e64642c)
 
-## 创建线程
+
+
+# 创建线程
 
 ```cpp
 #include<iostream>
@@ -28,7 +30,7 @@ int main()
 
 但这个时候会报错,因为主线程先于子线程结束
 
-## join()函数
+# join()函数
 
 强制主线程等待子线程结束后再结束
 
@@ -52,7 +54,7 @@ int main()
 
 
 
-## detach()函数
+# detach()函数
 
 分离线程,即使主线程先于子线程结束也不会报错,此时子线程在后台运行
 
@@ -76,7 +78,7 @@ int main()
 
 
 
-## joinable()函数
+# joinable()函数
 
 判断是否可以调用join()函数或者detach()函数,返回布尔值
 
@@ -104,7 +106,7 @@ int main()
 
 
 
-## 互斥量
+# 互斥量
 
 ```cpp
 #include <iostream>
@@ -137,7 +139,7 @@ int main()
 
 
 
-## 互斥量死锁
+# 互斥量死锁
 
 ```cpp
 #include <iostream>
@@ -180,7 +182,7 @@ int main()
 
 
 
-## lock_guard与unique_lock
+# lock_guard与unique_lock
 
 `Rall`原则:
 
@@ -190,7 +192,7 @@ int main()
 
 > C++11 中的 `std::lock_guard` 和 `std::unique_lock`。它们是实现 RAII（资源获取即初始化）来管理互斥锁的两种重要工具，能有效防止死锁并简化代码。
 
-### std::lock_guard
+## std::lock_guard
 
 `std::lock_guard` 是一个轻量级的、不可拷贝的 RAII 包装器，功能简单直接。
 
@@ -233,7 +235,7 @@ int main()
 
 
 
-### std::unique_lock
+## std::unique_lock
 
 `std::unique_lock` 是一个功能更全面、更灵活的 RAII 包装器。它包含了 `lock_guard` 的所有功能，并提供了额外的控制能力。
 
@@ -318,7 +320,7 @@ int main()
 }
 ```
 
-## std::call_once与其使用场景
+# std::call_once与其使用场景
 
 > 单例设计模式:用于确保某个类只能创建一个实例,如日志类
 
@@ -363,7 +365,7 @@ class Log{
 
 ```
 
-多线程情况下会出现一下情况:
+多线程情况下会出现以下情况:
 
 ```cpp
 #include <iostream>
