@@ -1,9 +1,9 @@
 ---
-title: cpp11新特性
+title: C++现代特性
 date: 2026-03-12 21:58:36
 tags: ["CPP"]
 categories: ["CPP开发"]
-description: CPP11常用的特性
+description: CPP现代常用的特性
 ---
 
 > 参考资料:
@@ -13,6 +13,8 @@ description: CPP11常用的特性
 > 《C++ Primer Plus》
 >
 > deepseek
+>
+> Gemini
 
 # 原始字面量
 
@@ -391,7 +393,21 @@ C++11 引入了 `auto` 和 `decltype` 两种自动类型推导机制。
    auto lst = {1, 2, 3}; // lst 类型为 std::initializer_list<int>
    // auto lst2{1, 2, 3}; // C++17 起：错误，直接列表初始化只能单元素
    ```
+3. **指针推导**：当初始值是一个指针时，`auto` 和 `auto*` 都可以正确推断出指针类型，两者的效果通常是等价的。但 `auto*` 会强制要求初始值必须是一个指针。
+   ```cpp
+    int val = 42;
+    auto p1 = &val;  // p1 推导为 int*
+    auto* p2 = &val; // p2 推导为 int*
 
+    // auto* p3 = val; // 编译错误：val 不是指针，无法匹配 auto*
+   ```
+4. **数组退化**: 当用数组初始化` auto `变量时，数组会“退化”为指向其首元素的指针。如果使用 `auto&`，则不会退化，而是推导为数组的引用。
+   ```cpp
+    int arr[] = {1, 2, 3};
+
+    auto arr_ptr = arr;    // arr_ptr 的类型是 int* (数组退化为指针)
+    auto& arr_ref = arr;   // arr_ref 的类型是 int(&)[3] (对长度为3的数组的引用)
+   ```
 ### 例子
 
 ```cpp
@@ -415,3 +431,156 @@ auto &a4 = a3;			// 底层const 保留，因此a4是const int& , auto推测为co
 ```
 
 ### 限制
+1. 不能作为函数的参数直接使用。因为只有在函数调用的时候才会给函数参数传递实参,`auto`要求必须要给修饰的变量赋值,因此矛盾
+2. 不能用于类的非静态成员变量的初始化
+```cpp
+    class Test
+        {
+            auto v1 = 0;                    // error
+            static auto v2 = 0;             // error,类的静态非常量成员不允许在类内部直接初始化
+            static const auto v3 = 10;      // ok
+        }
+
+
+        作者: 苏丙榅
+        链接: https://subingwen.cn/cpp/autotype/#1-2-auto%E7%9A%84%E9%99%90%E5%88%B6
+        来源: 爱编程的大丙
+        著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+```
+
+
+
+3. 无法使用auto推导出模板参数
+   ```cpp
+   template <typename T>
+    struct Test{}
+
+    int func()
+    {
+        Test<double> t;
+        Test<auto> t1 = t;           // error, 无法推导出模板类型
+        return 0;
+    }
+
+
+    作者: 苏丙榅
+    链接: https://subingwen.cn/cpp/autotype/#1-2-auto%E7%9A%84%E9%99%90%E5%88%B6
+    来源: 爱编程的大丙
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+   ```
+
+### 常用场景
+1. 遍历stl容器
+2. 泛型编程,使用模板时,很多时候不知道变量应该定义为什么类型
+   ```cpp
+   //使用auto
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    class T1
+    {
+    public:
+        static int get()
+        {
+            return 10;
+        }
+    };
+
+    class T2
+    {
+    public:
+        static string get()
+        {
+            return "hello, world";
+        }
+    };
+
+    template <class A>
+    void func(void)
+    {
+        auto val = A::get();//自动判断类型int or string
+        cout << "val: " << val << endl;
+    }
+
+    int main()
+    {
+        func<T1>();
+        func<T2>();
+        return 0;
+    }
+   ```
+
+    ```cpp
+    //不适用auto
+    #include <iostream>
+    #include <string>
+    using namespace std;
+
+    class T1
+    {
+    public:
+        static int get()
+        {
+            return 0;
+        }
+    };
+
+    class T2
+    {
+    public:
+        static string get()
+        {
+            return "hello, world";
+        }
+    };
+
+    template <class A, typename B>        // 添加了模板参数 B
+    void func(void)
+    {
+        B val = A::get();
+        cout << "val: " << val << endl;
+    }
+
+    int main()
+    {
+        func<T1, int>();                  // 手动指定返回值类型 -> int
+        func<T2, string>();               // 手动指定返回值类型 -> string
+        return 0;
+    }
+
+
+    作者: 苏丙榅
+    链接: https://subingwen.cn/cpp/autotype/#1-3-auto%E7%9A%84%E5%BA%94%E7%94%A8
+    来源: 爱编程的大丙
+    著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+    ```
+
+
+## decltype
+ > decltype（全称：Declared Type）,作用是向编译器发出查询：“这个表达式的类型是什么？”,与 auto 必须绑定变量初始化不同，decltype 只是静态地在编译期分析表达式的类型，绝不会真正计算（求值）该表达式。在模板元编程和泛型编程中，我们经常需要知道某个表达式的结果究竟是什么类型，但又不能或者不想真正去执行这个表达式，这时候 decltype 就成为了不可或缺的工具。
+ >` auto `与 `decltype` 
+> 1. 精确推导：与 auto 会丢弃引用和顶层 const 不同，decltype 保留所有类型修饰符（包括引用和 CV 限定符）。
+> 2. 零运行时开销：同样在编译阶段完成，不会生成任何对应的汇编指令。
+
+### 推导规则
+`decltype(expr)` 的推导结果极其依赖于表达式的形式以及它的值类别。C++ 标准将其推导规则严格分为以下几类：
+1. 未加括号的标识符或成员访问:
+   如果`e` 是一个没有被多余括号包围的**变量名、函数名**，或者是**类成员访问表达式**（如 obj.member 或 ptr->member），那么 `decltype(e)`推导出的就是该实体在代码中声明时的精确类型。
+    ```cpp
+    const int ci = 0;
+    int x = 10;
+    int& ref_x = x;
+    struct Point { double x; double y; };
+    Point pt;
+
+    decltype(ci) a = 1;      // a 的类型是 const int (完美保留 const)
+    decltype(ref_x) b = x;   // b 的类型是 int& (完美保留引用)
+    decltype(pt.x) c = 0.0;  // c 的类型是 double
+    ```
+2. 其他表达式的值类别:
+   如果不符合`1`的条件(例如它是一个算术表达式、函数调用，或者被括号 () 包围的变量),编译器将根据表达式 e 的**值类别**来决定类型。假设表达式 e 的基础类型为 T：
+   ```cpp
+   
+   ```
