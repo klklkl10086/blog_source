@@ -1,9 +1,9 @@
 ---
-title: C++现代特性之CPP 11
+title: C++现代特性之CPP11
 date: 2026-03-12 21:58:36
 tags: ["CPP"]
 categories: ["CPP开发"]
-description: CPP现代常用的特性
+description: CPP现代常用的特性,以及之前不太了解的CPP知识
 ---
 
 > 参考资料:
@@ -21,8 +21,6 @@ description: CPP现代常用的特性
 - 泛型编程: 模板
 - 语法糖
 
--------------
-
 
 
 # 左值右值
@@ -37,6 +35,101 @@ description: CPP现代常用的特性
    - 字面常量（如 `42`）、算术表达式（如 `a + b`）、返回非引用的函数调用。
 
 ---------
+
+# 函数对象
+
+> 函数对象就是一个**表现得像函数一样的对象**。在 C++ 中，它是通过在类（class/struct）中重载 **`operator()`**（圆括号运算符）来实现的。
+>
+> 由于这种类实例化后的对象可以像函数一样被调用，所以也被称为 **仿函数（Functor）**。
+
+```cpp
+#include <iostream>
+// 定义一个函数对象类
+class Adder {
+public:
+    Adder(int n) : num(n) {} // 构造函数可以存储状态
+    // 重载圆括号运算符
+    int operator()(int x) const {
+        return x + num;
+    }
+
+private:
+    int num;
+};
+
+int main() {
+    Adder add5(5);      // 创建一个对象，内部“记住”了 5
+    int result = add5(10); // 像调用函数一样调用对象
+    std::cout << result;   // 输出 15
+    return 0;
+}
+```
+
+## 优点
+
+相对于普通函数:
+
+**A. 带有“状态”（State）**
+
+普通函数除非使用全局变量或静态变量，否则无法在多次调用之间保持状态。而函数对象是类，可以拥有成员变量。
+
+- **例子：** 在处理 MoE 专家调度时，你可以创建一个函数对象，在构造时传入当前的 `GPU_ID` 或 `Stream_ID`。每次调用这个对象执行任务时，它都知道自己在哪个设备上工作。
+
+**B. 更好的内联优化（Inlining）**
+
+当你把函数对象传递给模板算法（如 `std::sort`）时，编译器知道确切的类类型，因此可以直接将 `operator()` 的逻辑**内联**到调用处。 相比之下，传递“函数指针”往往会导致编译器无法内联，从而产生函数调用的额外开销。
+
+
+
+--------------
+
+# 谓词
+
+> **返回布尔值（True 或 False）的函数或函数对象**。
+
+在 C++ STL中，谓词通常用于算法（如 `std::sort`, `std::find_if`, `std::remove_if`）中。
+
+- **一元谓词（Unary Predicate）：** 接收一个参数，返回 `bool`。
+  - *例子：* 判断一个数是不是偶数？`isEven(x)`
+- **二元谓词（Binary Predicate）：** 接收两个参数，返回 `bool`。
+  - *例子：* 判断第一个数是否大于第二个数？`compare(a, b)`
+
+**A. 普通函数**
+
+```cpp
+bool isPositive(int n) {
+    return n > 0;
+}
+// 使用：std::find_if(vec.begin(), vec.end(), isPositive);
+```
+
+**B. 函数对象（仿函数）**
+
+函数对象作为谓词的强大之处在于它可以拥有**状态**。
+
+```cpp
+class GreaterThan {
+    int threshold;
+public:
+    GreaterThan(int t) : threshold(t) {}
+    bool operator()(int n) const { return n > threshold; }
+};
+// 使用：std::find_if(vec.begin(), vec.end(), GreaterThan(10));
+```
+
+**C. Lambda 表达式（最常用）**
+
+这是现代 C++ 中最优雅的写法。
+
+```cpp
+// 使用：std::find_if(vec.begin(), vec.end(), [](int n) { return n > 10; });
+```
+
+
+
+
+
+---------------
 
 
 
@@ -242,13 +335,237 @@ foo(nullptr); // 推导 T 为某个类型，但实际不实例化对象
 
 #  Lambda 表达式
 
+> Lambda表达式（也称为匿名函数或闭包）允许在代码中就地定义函数对象。在C++98/03时代，若需要传递一个简单的可调用对象，通常需要单独编写一个函数或重载`operator()`的仿函数（Functor），代码冗长且不直观。Lambda表达式的出现极大地简化了这一过程，尤其在STL算法、异步编程、事件回调等场景中，Lambda已成为现代C++编程的标配。
 
+Lambda 表达式其实就是函数对象的**“语法糖”**
 
+## 基本语法
 
+```cpp
+[capture] (params) mutable constexpr noexcept -> retType { body }
+```
+
+| 部分         | 说明                                                         |
+| :----------- | :----------------------------------------------------------- |
+| `[capture]`  | **捕获列表**，必填。指定Lambda内可以访问哪些外部变量以及访问方式（值或引用）。 |
+| `(params)`   | **参数列表**，可选。与普通函数的参数列表类似，C++14起可以`auto`（泛型Lambda）。 |
+| `mutable`    | **可变修饰**，可选。默认情况下，**值捕获的变量**在Lambda体内是**只读**的，加上`mutable`后可修改其**副本**。 |
+| `constexpr`  | **常量表达式修饰**，可选（C++17）。强制编译器在常量表达式中求值Lambda。 |
+| `noexcept`   | **异常说明**，可选。指明Lambda不会抛出异常。                 |
+| `-> retType` | **返回类型**，可选。若省略，编译器根据`return`语句自动推导（C++14起支持更灵活的自动推导）。 |
+| `{ body }`   | **函数体**，必填。实际执行的代码。                           |
+
+###  **捕获列表 **
+
+这是 Lambda 与普通函数最大的区别。它决定了 Lambda 内部如何访问外部作用域的变量：
+
+- `[]`：不捕获任何外部变量。
+- `[=]`：**值捕获**。按值复制一份外部所有变量到 Lambda 内部（只读，除非加 `mutable`）。
+- `[&]`：**引用捕获**。直接引用外部变量，内部修改会影响外部。
+- `[x, &y]`：特定捕获。`x` 按值捕获，`y` 按引用捕获。T
+
+### Tips
+
+- **引用捕获**：必须确保被引用变量在Lambda被调用时仍然存活。例如，返回一个捕获了局部变量引用的Lambda，会导致悬垂引用。
+- **值捕获**：变量在Lambda定义时被拷贝（而非调用时）。对于只移动类型（如`std::unique_ptr`），C++14允许通过初始化捕获来移动捕获。
+
+### 示例
+
+1. **简单的Lambda表达式：**
+
+   **`[]{}` —— 空捕获、无参数、无返回类型、空函数体。**
+
+   ```cpp
+   auto greet = []() { std::cout << "Hello Lambda!\n"; };
+   greet();  // 输出：Hello Lambda!
+   ```
+
+2. **带参数与返回类型**
+
+   ```cpp
+   //参数与返回类型
+   auto add = [](int a, int b) -> int { return a + b; };
+   std::cout << add(3, 4);  // 输出：7
+   
+   // 省略返回类型（自动推导）
+   auto multiply = [](int a, int b) { return a * b; };
+   ```
+
+ 3. **捕获外部变量**
+
+    ```cpp
+    int x = 10, y = 20;
+    // 值捕获x，引用捕获y
+    auto func = [x, &y]() { 
+        // x += 1;   // 错误：x是只读的
+        y += 1;      // 正确：y是引用
+        return x + y;
+    };
+    std::cout << func(); // 使用原始x副本和修改后的y
+    ```
+
+ 4. **使用`mutable`修改值捕获的<u>副本</u>**
+
+    ```cpp
+    int count = 0;
+    auto counter = [count]() mutable { 
+        return ++count;   // 修改的是捕获到的副本
+    };
+    std::cout << counter(); // 1
+    std::cout << counter(); // 2
+    std::cout << count;     // 0（原变量未变）
+    ```
+
+## 泛型Lambda
+
+> C++14允许在参数列表中使用`auto`，使得Lambda可以接受任意类型的参数，相当于定义了模板化的`operator()`。
+
+```cpp
+auto generic_lambda = [](auto a, auto b) { return a + b; };
+std::cout << generic_lambda(1, 2);       // 3，int
+std::cout << generic_lambda(1.5, 2.5);   // 4.0，double
+std::cout << generic_lambda(std::string("Hello "), std::string("World"));
+// 字符串拼接："Hello World"
+```
+
+实际上，编译器会为每种参数类型组合生成**不同的重载**。泛型Lambda大大提升了代码复用性，常用于算法中。
+
+## 本质
+
+Lambda表达式在编译时会被转换为一个**仿函数类**（匿名函数对象），其`operator()`默认是`const`的（除非使用了`mutable`）。捕获的变量会作为该类的成员变量。
+
+例如，`[x, &y](int z) { return x + y + z; }`大致等价于:
+
+```cpp
+class AnonymousLambda {
+private:
+    int x;       // 值捕获的成员
+    int& y;      // 引用捕获的成员
+public:
+    AnonymousLambda(int x, int& y) : x(x), y(y) {}
+    auto operator()(int z) const { return x + y + z; }
+};
+```
+
+**因此,值捕获产生拷贝，引用捕获产生引用成员。**
 
 
 
 # `override`与` final`
+
+
+
+## `override`
+
+> 在派生类中显式声明某个虚函数**意在重写**基类中的一个同名虚函数。编译器会检查该函数是否真正重写了基类的某个虚函数（签名匹配），如果不匹配则产生编译错误。
+
+在成员函数声明（或定义）的参数列表之后、函数体或 `= default/delete` 之前加上 `override`
+
+```cpp
+class Base {
+public:
+    virtual void foo(int x);
+    virtual void bar() const;
+    virtual void baz();
+};
+
+class Derived : public Base {
+public:
+    void foo(int x) override;          // 正确重写 Base::foo
+    void bar() const override;         // 正确重写 Base::bar
+    void baz() override;               // 正确重写 Base::baz
+    // void foo(double x) override;    // 错误！因为 Base 中没有 virtual void foo(double)
+    // void bar() override;            // 错误！缺少 const，签名不匹配
+};
+```
+
+使用override可以防止出现，粗心导致子类重写虚函数出错，从而被认为是一个新的函数
+
+```cpp
+class Animal {
+public:
+    virtual void speak(const std::string& msg) const;
+};
+
+class Dog : public Animal {
+public:
+    // 笔误：参数类型写成了 std::string（非引用），且缺少 const
+    void speak(std::string msg) override;  
+    // 编译错误: 'Dog::speak' does not override a virtual function from 'Animal'
+};
+```
+
+- **只要在派生类中重写虚函数，就加上 `override`**。这相当于一种自文档化，也防止未来因基类改动导致重写失效。
+- 可以将 `override` 与 `virtual` 同时使用，但 `override` 本身已经隐含了该函数是虚函数，因此 `virtual` 可省略（但保留也不影响）。
+
+
+
+## `final`
+
+`final` 有两种使用场景：
+
+- **作为<u>虚函数</u>的修饰符**：禁止派生类进一步重写该**虚函数**。
+
+  ```cpp
+  class Base {
+  public:
+      virtual void foo() final;  // 此函数不可被任何派生类重写
+  };
+  
+  class Derived : public Base {
+  public:
+      // void foo() override;    // 错误！Base::foo 是 final 的
+  };
+  ```
+
+- **作为类的修饰符**：禁止该类被继承。
+
+  ```CPP
+  class FinalClass final {
+      // 该类不允许被任何类继承
+  };
+  
+  // class BadAttempt : public FinalClass { }; // 编译错误！
+  ```
+
+- **`final` 可以用来修饰一个“新引入的虚函数”，而不仅仅是修饰一个“重写基类的虚函数”**。
+
+  ```cpp
+  class Base {
+  public:
+      virtual void foo() final;   // 这是一个全新的虚函数，没有重写任何基类函数
+      // 注意：Base 没有基类（或基类中没有 foo）
+  };
+  
+  class Derived : public Base {
+      // void foo() override;     // 错误！Base::foo 是 final 的，不能重写
+  };
+  ```
+
+- `final` 关键字只能用于虚函数，因此 `static` 函数不能用 `final`。
+  - 因为static函数属于整个类,不存在this指针,但虚函数是动态绑定的需要this指针
+- 
+
+##  `override` + `final`
+
+派生类可以在重写基类虚函数的同时，声明该重写版本为 `final`，从而阻止更深层的派生类再次重写。
+
+```CPP
+class GrandBase {
+public:
+    virtual void func();
+};
+
+class Parent : public GrandBase {
+public:
+    void func() override final;   // 重写了 GrandBase::func，并禁止进一步重写
+};
+
+class Child : public Parent {
+public:
+    // void func() override;      // 错误！Parent::func 是 final 的
+};
+```
 
 
 
@@ -257,6 +574,10 @@ foo(nullptr); // 推导 T 为某个类型，但实际不实例化对象
 
 
 # 统一初始化与列表初始化
+
+
+
+
 
 
 
