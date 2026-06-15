@@ -1,7 +1,7 @@
 ---
 title: LLM 1 to N
 date: 2026-03-17 22:57:24
-tags: ["深度学习","Transformer"]
+tags: ["LLM"]
 categories: ["AI Infra"]
 ---
 

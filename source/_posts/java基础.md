@@ -2,7 +2,7 @@
 title: javaSE
 date: 2025-10-01 22:43:52
 tags: [javaSE]
-categories: 后端
+categories: 后端开发
 description: java入门笔记
 typora-root-url: ./java基础
 ---

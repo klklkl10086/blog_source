@@ -1,7 +1,7 @@
 ---
 title: Flash Attention
 date: 2026-04-15 12:13:40
-tags: ["深度学习]
+tags: ["LLM"]
 categories: ["AI Infra"] 
 ---
 
