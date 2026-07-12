@@ -6,3 +6,14 @@ categories: ["AI Infra"]
 ---
 
 > 参考视频：[大模型《从一到N》进阶概念系列]( https://space.bilibili.com/3546611527453161/lists/4721368?type=season[)
+>
+> LLM概念大乱斗吧
+
+
+
+# Transformer代码实现
+
+```python
+
+```
+

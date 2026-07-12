@@ -1,7 +1,7 @@
 ---
 title: cuda编程入门
 date: 2026-3-1 20:46:44
-tags: ["CUDA","CPP"]
+tags: ["CUDA"]
 categories: ["AI Infra"]
 typora-root-url: ./cuda编程入门
 description: 简单的cuda入门学习笔记,从基础到常量内存
@@ -1427,7 +1427,7 @@ int main()
 
 ## 内存访问性能要点
 
-### 合并访问 (Global Memory)
+### 合并访存 (Global Memory)
 - **定义**：一个 warp 的 32 个线程访问**全局内存**时，硬件将这些访问合并为尽可能少的 32 字节（或 128 字节）内存事务。
 
 - **最佳实践**：让线程 i 访问第 i 个元素（或连续步长），且起始地址对齐到 32 字节（或 128 字节）。
