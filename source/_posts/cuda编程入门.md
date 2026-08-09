@@ -16,6 +16,8 @@ mathjax: true
 >
 >[谭升的博客](https://face2ai.com/categories/CUDA/)
 >
+>[2026年夏季InfiniTensor大模型与人工智能系统训练营](https://www.infinitensor.com/camp/summer2026)
+>
 >《GPU高性能编程CUDA实战》
 
 
@@ -2474,3 +2476,8 @@ GPU 运行耗时: 0.882464 ms
 图像已保存为 output.ppm
 ```
 
+
+
+
+
+# CUDA-GDB
