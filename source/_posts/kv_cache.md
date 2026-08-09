@@ -3,9 +3,9 @@ title: KV Cache
 date: 2026-8-7 13:46:44
 tags: ["Transformer"]
 categories: ["AI Infra"]
-typora-root-url: ./kv_cache
 description: kv cache发展简单总结
 mathjax: true
+typora-root-url: ./kv_cache
 ---
 
 
@@ -196,6 +196,7 @@ decode阶段的瓶颈在于访存速度，一个解决方式就是一次访存�
 1. 每个请求需要的生成长度长短不一，如果一起进行计算，就要进行填充，会浪费GPU的计算资源。
 2. 不同的请求到达时间不同，最简单的解决方式就是等待，攒够一定数目的请求再进行计算，但是这样会让先来的等待时间很长。
    
+
 其实有一个解决方式是降低粒度，即我们不再根据请求进行调度，而是根据一次迭代，或者说一个token的生成为最小单位进行调度。但是这种方式依旧存在很多问题：
 1. 批处理带来了巨大的KV Cache开销，如何高效管理显存
 2. decode具有不同的算法，对显存管理造成了困难
@@ -206,13 +207,12 @@ decode阶段的瓶颈在于访存速度，一个解决方式就是一次访存�
 **解决方式**：向计算机操作系统中的虚拟内存学习，采用虚拟内存的思想，将显存空间分为大小相等的块，给每个请求分若干个块，这样就解决了外部碎片的问题，每个请求的显存分配情况通过块表进行记录、管理，通过更改块表可以轻松实现KV Cache块的共享。
 
 ## 思想
-![PagedAttention algorithm](image.png)
+![PagedAttention algorithm](./image.png)
 
-![PagedAttention algorithm example](image-2.png)
+![PagedAttention algorithm example](./image-2.png)
 
 学过OS就很容易理解了，块表的作用就是把KV块的逻辑号映射到真实的存储地址，这样就可以实现逻辑上连续但是物理上不连续了。
 
 
 # Rolling KV Cache
-
 
