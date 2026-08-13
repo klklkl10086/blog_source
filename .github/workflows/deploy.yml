@@ -3,7 +3,7 @@ name: Hexo Auto Deploy
 on:
   push:
     branches:
-      - main # 确保这里是你源码仓库的主分支名
+      - main
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
         with:
-          submodules: 'false' # 自动拉取 themes 里的主题插件
+          submodules: 'recursive'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,19 +29,15 @@ jobs:
 
       - name: Deploy
         env:
-          # 在源码仓库 Settings -> Secrets -> Actions 里添加这个 Token
           GH_TOKEN: ${{ secrets.HEXO_DEPLOY_TOKEN }}
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
-          # 2. 清洗 Token 并配置全局身份验证（核心：让 Git 记住这个 Token）
           CLEAN_TOKEN=$(echo -n "${GH_TOKEN}" | tr -d '\n' | tr -d '\r' | tr -d ' ')
           git config --global url."https://${CLEAN_TOKEN}@github.com/".insteadOf "https://github.com/"
           
-          # 3. 确保 _config.yml 里的 repo 地址是标准的 HTTPS 格式
-          # 注意：这里直接写死你的静态仓库地址，不要带 [ ] 符号
-          sed -i "s|repo:.*|repo: https://github.com/klklkl10086/klklkl10086.github.io.git|g" _config.yml
+          sed -i "s|repository:.*|repository: https://github.com/klklkl10086/klklkl10086.github.io.git|g" _config.yml
           npx hexo clean
           npx hexo generate
           npx hexo deploy

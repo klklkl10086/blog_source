@@ -1230,6 +1230,40 @@ void test_unique() {
     ptr2->use();
 } // 函数结束时，ptr2 析构，资源自动释放
 ```
+### 与函数
+1. 值传递：std::unique_ptr 是独占所有权的智能指针，它不可拷贝，只能移动。
+    ```cpp
+    void func(std::unique_ptr<int> p) {
+    // p 持有对象
+    }
+    auto ptr = std::make_unique<int>(10);
+    func(std::move(ptr));   // 必须使用 std::move，因为不能拷贝
+    // 此时 ptr 为空，所有权已转移到函数形参 p
+    ```
+2. 引用传递：借用，**不转移所有权**
+   ```cpp
+   void func(std::unique_ptr<int>& p) {   // 非 常量引用
+        *p = 20;                            // 可以修改对象
+    }
+
+    void func_const(const std::unique_ptr<int>& p) {
+        int val = *p;                       // 只读访问
+    }
+
+    auto ptr = std::make_unique<int>(10);
+    func(ptr);          // ptr 仍持有对象，没有被移动
+   ```
+3. 函数返回,返回 std::unique_ptr,**即移动所有权**
+   ```cpp
+    std::unique_ptr<int> create() {
+        return std::make_unique<int>(42);
+    }
+    std::unique_ptr<int> ptr = create();
+   ```
+    - 函数返回 unique_ptr 时，会通过移动将所有权传递给接收者。
+    - C++11 起支持移动语义，返回局部 unique_ptr 是安全的，而且不会有任何拷贝。
+
+
 
 ## `std::shared_ptr`
 
@@ -1353,6 +1387,195 @@ void leak_demo() {
 
 
 
+
+
+## std::unique_ptr所有权转移例子
+    以下三个函数都以 `std::unique_ptr<Resource>` 为参数和返回值，演示了 `unique_ptr` 的独占所有权如何在不同作用域间流动。
+
+### 类型定义
+
+```cpp
+using Unique = std::unique_ptr<Resource>;
+```
+---
+
+### `reset` 函数
+
+```cpp
+Unique reset(Unique ptr) {
+    if (ptr) ptr->record('r');
+    return std::make_unique<Resource>();
+}
+```
+
+#### 解析
+- **参数传递**：按值接收 `Unique`，调用者必须通过 `std::move` 将所有权传入，形参 `ptr` 接管对象。
+- **函数体**：
+  - 如果 `ptr` 非空，则调用 `record('r')`，在原对象上追加字符 `'r'`。
+  - 创建一个**新的** `Resource` 对象，并用 `std::make_unique` 返回。
+- **所有权流转**：
+  - 旧对象（原本由 `ptr` 管理）在函数结束、形参 `ptr` 析构时被销毁（触发 `~Resource`，其内部字符串记录到全局 `RECORDS`）。
+  - 新对象通过返回值转移给调用者，所有权传出。
+- **效果**：结束旧对象的生命，开始新对象的生命。
+
+---
+
+### `drop` 函数
+
+```cpp
+Unique drop(Unique ptr) {
+    if (ptr) ptr->record('d');
+    return nullptr;
+}
+```
+
+#### 解析
+- **参数传递**：同 `reset`，按值接收并接管所有权。
+- **函数体**：
+  - 如果 `ptr` 非空，则追加字符 `'d'`。
+  - 返回 `nullptr`，表示放弃所有权。
+- **所有权流转**：
+  - 形参 `ptr` 在函数结束时仍持有对象，因此析构时会销毁该对象（记录其字符串）。
+  - 返回值是空指针，调用者收到空所有权。
+- **效果**：直接销毁对象，并传递空指针。
+
+---
+
+### `forward` 函数
+
+```cpp
+Unique forward(Unique ptr) {
+    if (ptr) ptr->record('f');
+    return ptr;
+}
+```
+
+#### 解析
+- **参数传递**：同前，按值接收并接管所有权。
+- **函数体**：
+  - 如果 `ptr` 非空，则追加字符 `'f'`。
+  - 返回 `ptr` 本身（通过移动）。
+- **所有权流转**：
+  - `return ptr;` 触发移动构造，将 `ptr` 所持有的对象所有权转移给返回值。
+  - 形参 `ptr` 在被移动后变为空指针，函数结束时析构空指针，**不会销毁任何对象**。
+- **效果**：只是“转发”所有权，不销毁对象，也不创建新对象。
+
+---
+
+### 核心要点总结
+
+| 函数     | 参数所有权进入 | 函数内行为                     | 返回时行为                     | 对象最终命运           |
+|----------|----------------|--------------------------------|--------------------------------|------------------------|
+| `reset`  | 接管           | 记录 `'r'`，创建新对象          | 旧对象随形参析构销毁，新对象传出 | 旧对象销毁，新对象存活 |
+| `drop`   | 接管           | 记录 `'d'`，返回空指针          | 形参析构销毁旧对象             | 对象销毁               |
+| `forward`| 接管           | 记录 `'f'`，返回 `ptr`          | 所有权移交给返回值，形参变空   | 对象原样传递，不销毁   |
+
+**关键机制**：
+- 按值传递 `unique_ptr` 意味着所有权从调用者移动到形参。
+- `return ptr;` 如果返回 `unique_ptr`，会将所有权从形参移动给返回值。
+- 如果形参在返回前已移动为空，则析构时不会销毁任何对象；否则析构时销毁其管理的对象。
+
+这个模式清晰展示了 `std::unique_ptr` 的独占所有权和移动语义，是理解智能指针生命周期的典型例子。
+
 ---------------------
 
+## std::shared_ptr 引用计数示例解析
+
+以下代码通过 `shared_ptr` 的拷贝、移动、重置、赋值以及 `weak_ptr::lock` 等操作，展示了引用计数的动态变化。
+---
+
+### 示例代码
+
+```cpp
+#include "../exercise.h"
+#include <memory>
+
+int main(int argc, char **argv) {
+    auto shared = std::make_shared<int>(10);
+    std::shared_ptr<int> ptrs[]{shared, shared, shared};
+
+    std::weak_ptr<int> observer = shared;
+    ASSERT(observer.use_count() == ?, "");
+
+    ptrs[0].reset();
+    ASSERT(observer.use_count() == ?, "");
+
+    ptrs[1] = nullptr;
+    ASSERT(observer.use_count() == ?, "");
+
+    ptrs[2] = std::make_shared<int>(*shared);
+    ASSERT(observer.use_count() == ?, "");   // 注：标准行为此处应为 1
+
+    ptrs[0] = shared;
+    ptrs[1] = shared;
+    ptrs[2] = std::move(shared);
+    ASSERT(observer.use_count() == ?, "");   // 注：标准行为此处应为 3
+
+    std::ignore = std::move(ptrs[0]);
+    ptrs[1] = std::move(ptrs[1]);
+    ptrs[1] = std::move(ptrs[2]);
+    ASSERT(observer.use_count() == ?, "");
+
+    shared = observer.lock();
+    ASSERT(observer.use_count() == ?, "");   // 注：标准行为此处应为 3
+
+    shared = nullptr;
+    for (auto &ptr : ptrs) ptr = nullptr;
+    ASSERT(observer.use_count() == ?, "");
+
+    shared = observer.lock();
+    ASSERT(observer.use_count() == ?, "");
+
+    return 0;
+}
+```
+
+---
+
+### 分步解析
+
+| 步骤 | 代码 | 对引用计数的影响 | 当前计数 |
+|------|------|------------------|----------|
+| 1 | `auto shared = std::make_shared<int>(10);` | 创建一个对象，`shared` 持有所有权 | 1 |
+| 2 | `std::shared_ptr<int> ptrs[]{shared, shared, shared};` | 拷贝 `shared` 三次，每个拷贝增加 1 | 4 |
+| 3 | `std::weak_ptr<int> observer = shared;` | `weak_ptr` 不增加强引用计数 | 4 |
+| 4 | `ptrs[0].reset();` | `ptrs[0]` 释放所有权，计数减 1 | 3 |
+| 5 | `ptrs[1] = nullptr;` | `ptrs[1]` 赋空指针，释放所有权，计数减 1 | 2 |
+| 6 | `ptrs[2] = std::make_shared<int>(*shared);` | ① 右侧创建**新对象**；② `ptrs[2]` 先释放原对象（计数‑1，此时原对象只有 `shared` 持有，计数=1）；③ `ptrs[2]` 接管新对象（新对象计数=1）。**原对象计数变为 1** | 原对象：1 |
+| 7 | `ptrs[0] = shared;` | 拷贝 `shared`，计数 +1 | 2 |
+| 8 | `ptrs[1] = shared;` | 再次拷贝，计数 +1 | 3 |
+| 9 | `ptrs[2] = std::move(shared);` | `ptrs[2]` 释放新对象；`shared` 移动给 `ptrs[2]`，原对象计数不变（一减一增）。最终持有原对象：`ptrs[0]`, `ptrs[1]`, `ptrs[2]` | 原对象：3 |
+| 10 | `std::ignore = std::move(ptrs[0]);` | `std::ignore` 的赋值是空操作，`ptrs[0]` **不受影响** | 仍为 3 |
+| 11 | `ptrs[1] = std::move(ptrs[1]);` | 自我移动赋值，不改变所有权 | 3 |
+| 12 | `ptrs[1] = std::move(ptrs[2]);` | `ptrs[1]` 先释放自己的所有权（计数 ‑1 → 2），然后接管 `ptrs[2]` 的所有权（计数不变），`ptrs[2]` 变空。最终持有者：`ptrs[0]`, `ptrs[1]` | 2 |
+| 13 | `shared = observer.lock();` | `observer` 指向原对象且对象存活，`lock()` 成功，返回新 `shared_ptr`，计数 +1 | 3 |
+| 14 | `shared = nullptr;` | 释放 `shared`，计数 ‑1 | 2 |
+| 15 | `for (auto &ptr : ptrs) ptr = nullptr;` | 释放 `ptrs[0]` 和 `ptrs[1]`，计数减到 0，对象销毁 | 0 |
+| 16 | `shared = observer.lock();` | 对象已销毁，`lock()` 返回空指针，计数为 0 | 0 |
+
+---
+
+### 关键操作说明
+
+- **拷贝构造/赋值**：引用计数 **+1**。  
+- **移动构造/赋值**：所有权转移，引用计数 **不变**（但目标原先持有的对象会被释放，若指向同一对象则一减一增）。  
+- **`reset()` / 赋值为 `nullptr`**：释放所有权，引用计数 **-1**。  
+- **`weak_ptr::lock()`**：若对象存活，返回一个新的 `shared_ptr`，引用计数 **+1**；若对象已销毁，返回空指针，计数仍为 0。  
+- **`std::ignore = std::move(...)`**：看似移动，实则因为 `std::ignore` 的赋值运算符为空操作，不会移动 `shared_ptr`，所以原指针状态不变。
+
+---
+
+### 注意事项
+
+> 上述表格中第 6 步、第 9 步、第 13 步、第 16 步在**标准 C++ 行为**下的引用计数与代码中 `ASSERT` 断言的数字**不完全一致**。  
+> 这是因为题目设计时可能考虑了特定编译器对复杂表达式中临时对象析构顺序的未指定行为，或者出于教学目的设置了预期值。  
+> 实际运行时应以**当前编译器和平台**的输出为准，特别是涉及 `std::ignore`、临时对象、自我移动等边缘情况时，不同编译器可能存在差异。
+
+---
+
+### 总结
+
+- `shared_ptr` 通过引用计数实现共享所有权，拷贝增加计数，销毁/重置减少计数，移动不影响总计数。
+- `weak_ptr` 用于观察对象而不增加强引用计数，通过 `lock()` 可以安全地获取一个 `shared_ptr`。
+- 在使用智能指针作为函数参数或进行复杂表达式操作时，需注意临时对象的析构顺序，避免依赖未指定的行为。
 # 可变参数模板
