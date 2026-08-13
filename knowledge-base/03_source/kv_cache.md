@@ -1,6 +1,6 @@
 ---
 title: KV Cache
-date: 2026-8-7 13:46:44
+date: 2026-08-07 13:46:44
 tags: ["Transformer"]
 categories: ["AI Infra"]
 description: kv cache发展简单总结

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "02_Concepts/Linux File Descriptor.md",
+                "file": "GPU_MODE/GPU_MODE.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Linux File Descriptor"
+              "title": "GPU_MODE"
             }
           }
         ]
@@ -83,7 +83,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 257.1363830566406,
+    "collapsed": true
   },
   "right": {
     "id": "e8aeae6e8f500d6b",
@@ -99,12 +100,13 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "GPU_MODE/GPU_MODE.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
-                "backlinkCollapsed": false,
+                "backlinkCollapsed": true,
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
@@ -159,6 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "GPU_MODE/GPU_MODE.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -167,7 +170,8 @@
               "title": "大纲"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
@@ -178,7 +182,6 @@
     "hiddenItems": {
       "switcher:打开快速切换": false,
       "graph:查看关系图谱": false,
-      "canvas:新建白板": false,
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
@@ -187,6 +190,8 @@
   },
   "active": "b10b2a5d96d7749f",
   "lastOpenFiles": [
+    "01_Maps/AI Infra Map.md",
+    "02_Concepts/Linux File Descriptor.md",
     "02_Concepts/Socket API.md",
     "02_Concepts/Shared Memory.md",
     "02_Concepts/Warp.md",
@@ -195,7 +200,6 @@
     "02_Concepts/Continuous Batching.md",
     "02_Concepts/C++ Move Semantics.md",
     "01_Maps/C++ Map.md",
-    "01_Maps/Algorithm Map.md",
-    "01_Maps/AI Infra Map.md"
+    "01_Maps/Algorithm Map.md"
   ]
 }

@@ -1,6 +1,6 @@
 ---
 title: cuda编程入门
-date: 2026-3-1 20:46:44
+date: 2026-03-01 20:46:44
 tags: ["CUDA"]
 categories: ["AI Infra"]
 typora-root-url: ./cuda编程入门

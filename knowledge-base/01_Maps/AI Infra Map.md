@@ -28,6 +28,17 @@ created: 2026-08-09
 - [[FlashAttention]]
 - [[Supervised Fine-Tuning]]
 
+## CUDA Profiling And Performance
+
+- [[CUDA Kernel Profiling]]
+- [[PyTorch Profiler]]
+- [[Nsight Systems]]
+- [[Nsight Compute]]
+- [[CUDA Kernel Launch Overhead]]
+- [[Operator Fusion]]
+- [[Streaming Multiprocessor]]
+- [[GPU Occupancy]]
+
 ## Source Posts
 
 - `source/_posts/cuda编程入门.md`

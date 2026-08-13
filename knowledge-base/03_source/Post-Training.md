@@ -1,8 +1,9 @@
 ---
 title: Post-Training and Fine-Tuning
-date: 2026-08-1 22:57:24
+date: 2026-08-01 22:57:24
 tags: ["LLM","微调","Post-Traning","Fine-Tuning"]
 categories: ["大模型算法"]
+description: Post-training、Fine-tuning 与大模型训练阶段的学习笔记
 ---
 
 **`Post-Trianing` 流程**

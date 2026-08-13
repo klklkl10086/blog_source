@@ -2,7 +2,7 @@
 title: Sgemm单精度矩阵乘法
 date: 2026-04-15 12:13:20
 tags: ["CUDA","CPP"]
-categories: ["AI Infra"]'
+categories: ["AI Infra"]
 description: Sgemm单精度矩阵乘法 
 ---
 
