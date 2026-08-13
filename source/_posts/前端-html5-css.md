@@ -3021,7 +3021,7 @@ var root = document.getElementById("root");
 
 **innerHTML和innerText**
 
-```JS
+```js
 console.log(root.innerHTML);//读取
 console.log(root.innerHTML="aaaaa");//设置
 

@@ -1134,7 +1134,7 @@ where dept_count (dept_name ) > 12
   referencing new row as  : for inserts and updates
   ```
 
-```SQL
+```sql
 create trigger setnull_trigger before update of takes
 referencing new row as nrow
 for each row

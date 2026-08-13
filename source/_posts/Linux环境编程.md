@@ -2518,7 +2518,7 @@ void _Exit(int status);
 
 进程可以用`atexit()`函数登记终止函数（最多32个），这些函数将由`exit()`自动调用。
 
-```CPP
+```cpp
 #include <stdlib.h>
 int atexit(void (*function)(void));
 ```

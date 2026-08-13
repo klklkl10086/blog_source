@@ -1027,19 +1027,27 @@ Pre-LN 的梯度流动更顺畅，训练更稳定，因此被 GPT、BERT 等主�
 
 对于任意输入向量 $\mathbf{v} = \begin{bmatrix} x \\ y \end{bmatrix}$，由于线性变换的性质，变换后的向量等于变换后的基向量按原比例相加：
 
-$$T(\mathbf{v}) = x \cdot (\text{变换后的} \hat{i}) + y \cdot (\text{变换后的} \hat{j})$$
+$$
+T(\mathbf{v}) = x \cdot (\text{变换后的} \hat{i}) + y \cdot (\text{变换后的} \hat{j})
+$$
 
 代入坐标：
 
-$$T(\mathbf{v}) = x \begin{bmatrix} a \\ b \end{bmatrix} + y \begin{bmatrix} c \\ d \end{bmatrix}$$
+$$
+T(\mathbf{v}) = x \begin{bmatrix} a \\ b \end{bmatrix} + y \begin{bmatrix} c \\ d \end{bmatrix}
+$$
 
 将其展开：
 
-$$T(\mathbf{v}) = \begin{bmatrix} ax + cy \\ bx + dy \end{bmatrix}$$
+$$
+T(\mathbf{v}) = \begin{bmatrix} ax + cy \\ bx + dy \end{bmatrix}
+$$
 
 将上述过程总结如下：
 
-$$\begin{bmatrix} a & c \\ b & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = x \begin{bmatrix} a \\ b \end{bmatrix} + y \begin{bmatrix} c \\ d \end{bmatrix} = \begin{bmatrix} ax + cy \\ bx + dy \end{bmatrix}$$
+$$
+\begin{bmatrix} a & c \\ b & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} = x \begin{bmatrix} a \\ b \end{bmatrix} + y \begin{bmatrix} c \\ d \end{bmatrix} = \begin{bmatrix} ax + cy \\ bx + dy \end{bmatrix}
+$$
 
 - **矩阵** $\begin{bmatrix} a & c \\ b & d \end{bmatrix}$：代表了线性变换本身,其中**第一列是变换后的 $\hat{i}$，第二列是变换后的 $\hat{j}$**。如果是三维的以此类推即可。
 - **向量** $\begin{bmatrix} x \\ y \end{bmatrix}$：代表了被变换的对象。
@@ -1107,7 +1115,9 @@ $$\begin{bmatrix} a & c \\ b & d \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatr
 
 在模型输出最终的概率分布之前，它会先计算出每个词汇的原始得分（称为 Logits，$z_i$）。Temperature ($T$) 作为一个缩放因子，会直接介入将 Logits 转化为概率（Softmax）的计算公式中：
 
-$$p_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}$$
+$$
+p_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}
+$$
 
 通过除以 $T$，它精妙地改变了概率分布的**形状**（平缓或尖锐），但**不会改变词汇的排名先后**。
 

@@ -2345,7 +2345,7 @@ GPU 运行耗时: 0.906592 ms
 
 **由于常量内存的性质，一定要将其变为静态分配，而不是使用cudaMalloc函数**
 
-```CPP
+```cpp
 __constant__ Sphere s[Sphere];
 ```
 

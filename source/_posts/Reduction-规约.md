@@ -1205,7 +1205,7 @@ int main()
 
  利用`__shfl_down_sync()`,将之前的代码进行优化:
 
-```CPP
+```cpp
 template<int BLOCKNUM,int NUMSPERTHREAD>//block的数量   每个线程要负责的数字个数
 __global__ void reduction(float* a,float* res)
 {

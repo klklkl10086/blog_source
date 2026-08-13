@@ -1,4 +1,4 @@
-﻿---
+---
 title: C++现代特性之CPP11
 date: 2026-03-12 21:58:36
 categories:
@@ -357,7 +357,7 @@ Lambda 表达式其实就是函数对象的**“语法糖”**
 | `-> retType` | **返回类型**，可选。若省略，编译器根据`return`语句自动推导（C++14起支持更灵活的自动推导）。 |
 | `{ body }`   | **函数体**，必填。实际执行的代码。                           |
 
-###  **捕获列表 **
+### 捕获列表
 
 这是 Lambda 与普通函数最大的区别。它决定了 Lambda 内部如何访问外部作用域的变量：
 
@@ -552,7 +552,7 @@ public:
 
 派生类可以在重写基类虚函数的同时，声明该重写版本为 `final`，从而阻止更深层的派生类再次重写。
 
-```CPP
+```cpp
 class GrandBase {
 public:
     virtual void func();
@@ -889,7 +889,7 @@ auto &a4 = a3;			// 底层const 保留，因此a4是const int& , auto推测为co
 
 ​		
 
-```CPP
+```cpp
 //不用auto
 #include <iostream>
 #include <string>
@@ -1293,6 +1293,42 @@ void test_shared() {
 } // ptr1 离开作用域，计数归 0，释放资源
 ```
 
+### 与函数
+1. 按值传递：共享所有权
+   std::shared_ptr 是共享所有权的智能指针，它支持拷贝
+   ```cpp
+   void func(std::shared_ptr<int> p) {
+        // p 和外部 ptr 共享同一个对象，引用计数 +1
+    }
+
+    auto ptr = std::make_shared<int>(10);
+    func(ptr);              // 拷贝，引用计数从1变为2
+    // 函数返回后，p 析构，引用计数减1，ptr 仍然有效
+   ```
+   - 实参直接传递即可，会调用拷贝构造，引用计数增加。
+   - 函数形参 p 在函数结束时析构，引用计数减1。
+   - 这种写法表示：函数希望在内部延长对象的生命周期，或者与调用者共享所有权。
+2. 按引用传递,借用,不增加计数
+   ```cpp
+   void func(const std::shared_ptr<int>& p) {
+        int val = *p;
+    }
+
+    auto ptr = std::make_shared<int>(10);
+    func(ptr);  // 引用计数不变
+    ```
+    - 按引用传递不会增加引用计数，因为只是引用了已有的 shared_ptr 对象。
+    - 这在性能上比按值传递更高效（避免原子计数操作），但同样，如果你只是需要访问对象本身，传T&而非智能指针引用。
+3. 返回值,拷贝
+   ```cpp
+   std::shared_ptr<int> create() {
+        auto p = std::make_shared<int>(42);
+        return p;    // 拷贝，引用计数+1，然后局部 p 析构，最终引用计数为1
+    }
+   ```
+   - 返回 shared_ptr 时，一般会发生拷贝（除非编译器优化为移动），最终结果是返回的指针持有一份所有权，引用计数至少为1。
+
+
 
 
 ## `std::weak_ptr`
@@ -1386,11 +1422,109 @@ void leak_demo() {
    - 共享所有权：传递 `std::shared_ptr<T>`。
 
 
+## 工厂函数与所有权
+
+
+> C++ 标准库提供了 `std::make_unique` 和 `std::make_shared` 两个工厂函数，用于安全、高效地创建由智能指针管理的对象。**注意：没有 `std::make_weak`**，因为 `weak_ptr` 本身不拥有对象，它只能从已有的 `shared_ptr` 构造或赋值得到。
+
+---
+
+### `std::make_unique`（C++14）
+
+#### 作用
+在堆上创建一个 `T` 类型的对象，并返回一个**独占所有权**的 `std::unique_ptr<T>`。
+
+#### 函数签名
+```cpp
+template<class T, class... Args>
+std::unique_ptr<T> make_unique(Args&&... args);
+```
+
+#### 返回值
+- 类型：`std::unique_ptr<T>`
+- 所有权：**独占**，该 `unique_ptr` 是对象的唯一所有者。
+
+#### 所有权变化
+- 创建时，返回的 `unique_ptr` 获得对象的独占所有权。
+- 之后只能通过移动转移所有权；拷贝被禁止。
+- 当该 `unique_ptr` 被销毁、重置或移动后，对象被释放（`delete`）。
+
+#### 示例
+```cpp
+auto ptr = std::make_unique<int>(42);   // ptr 独占 int 对象
+// ptr 指向一个 int，值为 42
+```
+
+---
+
+### `std::make_shared`（C++11）
+
+#### 作用
+在堆上创建一个 `T` 类型的对象，并返回一个**共享所有权**的 `std::shared_ptr<T>`，同时分配控制块（保存引用计数等信息）。
+
+#### 函数签名
+```cpp
+template<class T, class... Args>
+std::shared_ptr<T> make_shared(Args&&... args);
+```
+
+#### 返回值
+- 类型：`std::shared_ptr<T>`
+- 所有权：**共享**，初始时引用计数为 1。
+
+#### 所有权变化
+- 创建时，返回的 `shared_ptr` 持有对象，引用计数 = 1。
+- 之后可以通过拷贝增加引用计数，通过移动不增加计数（但所有权转移）。
+- 当最后一个 `shared_ptr` 被销毁或重置时，对象被释放，控制块销毁。
+
+#### 内部优化
+`make_shared` 通常只进行一次内存分配，将对象和控制块放在同一块连续内存中，比 `std::shared_ptr<T>(new T)` 更高效、更安全（异常安全）。
+
+#### 示例
+```cpp
+auto ptr = std::make_shared<int>(42);   // ptr 持有对象，计数为1
+auto ptr2 = ptr;                        // 拷贝，计数变为2
+```
+
+---
+
+###  `std::weak_ptr` 的创建
+
+**标准库没有 `make_weak`**。`weak_ptr` 是“观察者”，不拥有对象，因此没有工厂函数。
+
+#### 如何获得 `weak_ptr`？
+从已有的 `shared_ptr` 构造或赋值：
+```cpp
+std::shared_ptr<int> sp = std::make_shared<int>(42);
+std::weak_ptr<int> wp = sp;            // 不增加引用计数
+```
+
+#### 所有权变化
+- `weak_ptr` 从不拥有对象，不影响强引用计数。
+- 它只能通过 `lock()` 临时获取一个 `shared_ptr`（若对象还存活），此时会短暂增加引用计数。
+
+#### 示例
+```cpp
+std::shared_ptr<int> sp = std::make_shared<int>(42);
+std::weak_ptr<int> wp = sp;
+std::shared_ptr<int> sp2 = wp.lock();   // sp2 有效，引用计数 +1
+```
+
+---
+
+### 总结
+
+| 工厂函数       | 返回类型             | 初始所有权 | 创建方式         | 注意点                     |
+|----------------|----------------------|------------|------------------|----------------------------|
+| `make_unique`  | `std::unique_ptr<T>` | 独占       | 单次分配         | C++14，不可拷贝            |
+| `make_shared`  | `std::shared_ptr<T>` | 共享（计数1）| 单次分配（含控制块）| C++11，推荐优于 `new` 构造 |
+| （无 `make_weak`）| `std::weak_ptr<T>`   | 无         | 由 `shared_ptr` 构造/赋值 | 不增加引用计数，仅观察 |
+
 
 
 
 ## std::unique_ptr所有权转移例子
-    以下三个函数都以 `std::unique_ptr<Resource>` 为参数和返回值，演示了 `unique_ptr` 的独占所有权如何在不同作用域间流动。
+> 以下三个函数都以 `std::unique_ptr<Resource>` 为参数和返回值，演示了 `unique_ptr` 的独占所有权如何在不同作用域间流动。
 
 ### 类型定义
 
@@ -1481,8 +1615,6 @@ Unique forward(Unique ptr) {
 
 ## std::shared_ptr 引用计数示例解析
 
-以下代码通过 `shared_ptr` 的拷贝、移动、重置、赋值以及 `weak_ptr::lock` 等操作，展示了引用计数的动态变化。
----
 
 ### 示例代码
 
@@ -1567,9 +1699,9 @@ int main(int argc, char **argv) {
 
 ### 注意事项
 
-> 上述表格中第 6 步、第 9 步、第 13 步、第 16 步在**标准 C++ 行为**下的引用计数与代码中 `ASSERT` 断言的数字**不完全一致**。  
-> 这是因为题目设计时可能考虑了特定编译器对复杂表达式中临时对象析构顺序的未指定行为，或者出于教学目的设置了预期值。  
-> 实际运行时应以**当前编译器和平台**的输出为准，特别是涉及 `std::ignore`、临时对象、自我移动等边缘情况时，不同编译器可能存在差异。
+上述表格中第 6 步、第 9 步、第 13 步、第 16 步在**标准 C++ 行为**下的引用计数与代码中 `ASSERT` 断言的数字**不完全一致**。
+这是因为题目设计时可能考虑了特定编译器对复杂表达式中临时对象析构顺序的未指定行为，或者出于教学目的设置了预期值。
+实际运行时应以**当前编译器和平台**的输出为准，特别是涉及 `std::ignore`、临时对象、自我移动等边缘情况时，不同编译器可能存在差异。
 
 ---
 
