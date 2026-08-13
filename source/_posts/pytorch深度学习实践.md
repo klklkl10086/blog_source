@@ -1,9 +1,16 @@
----
+﻿---
 title: Pytorch深度学习实践
 date: 2025-11-27 22:15:20
-tags: ["深度学习","Pytorch"]
-categories: ["研究生补完"]
+categories:
+  - AI Infra
+  - Course Notes
+tags:
+  - AI Infra
+  - Course Notes
+description: PyTorch 深度学习实践课程笔记。
 typora-root-url: ./pytorch深度学习实践
+typora-copy-images-to: ./pytorch深度学习实践
+mathjax: true
 ---
 
 > [《PyTorch深度学习实践》完结合集]( https://www.bilibili.com/video/BV1Y7411d7Ys/?p=3&share_source=copy_web&vd_source=777aaa8a415b68222e598d976e64642c)

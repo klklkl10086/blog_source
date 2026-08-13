@@ -1,13 +1,12 @@
----
+﻿---
 title: Database
 date: 2024-05-07 19:03:11
-tags: SQL
-categories: class
-description: 数据库系统原理的部分笔记
-typora-root-url: ./Database
+categories:
+  - Course Notes
+tags:
+  - Course Notes
+description: 数据库系统原理课程笔记。
 ---
-
-
 
 **肯定有错，PPT来源于学校，如果侵权请通过邮箱告知**
 

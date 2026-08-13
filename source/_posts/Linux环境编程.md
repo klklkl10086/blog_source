@@ -1,9 +1,13 @@
----
+﻿---
 title: Linux环境编程
 date: 2026-01-31 20:51:35
-tags: ["Linux","CPP"]
-categories: ["CPP开发"]
-description: CPP开发基础知识
+categories:
+  - Systems
+  - C++
+tags:
+  - Systems
+  - C++
+description: Linux 环境编程与 C++ 系统开发基础笔记。
 ---
 
 > [参考课程](https://www.bilibili.com/video/BV1wG411k7tm/?share_source=copy_web&vd_source=777aaa8a415b68222e598d976e64642c)

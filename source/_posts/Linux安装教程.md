@@ -1,13 +1,16 @@
----
-title:  Linux课程复习笔记
+﻿---
+title: Linux课程复习笔记
 date: 2023-09-26 22:30:07
-tags: Linux
-categories: class
-descirption:  基于2023年下吉林大学郭东老师的课程和ppt
+categories:
+  - Course Notes
+  - Systems
+tags:
+  - Systems
+  - Course Notes
+description: Linux 安装与课程复习笔记。
 typora-root-url: ./Linux安装教程
+typora-copy-images-to: ./Linux安装教程
 ---
-
-
 
 **声明：本篇文章参考和引用了2023下半年吉林大学郭东老师的PPT，如有侵权，请联系我，我将会立马删除**
 

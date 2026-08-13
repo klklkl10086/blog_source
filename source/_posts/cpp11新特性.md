@@ -1,9 +1,11 @@
----
+﻿---
 title: C++现代特性之CPP11
 date: 2026-03-12 21:58:36
-tags: ["CPP"]
-categories: ["CPP开发"]
-description: CPP现代常用的特性,以及之前不太了解的CPP知识
+categories:
+  - C++
+tags:
+  - C++
+description: C++11 常用语言特性整理。
 ---
 
 > 参考资料:

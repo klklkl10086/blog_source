@@ -1,13 +1,15 @@
----
+﻿---
 title: 从0实现Transformer
 date: 2025-12-07 21:07:22
-tags: ["LLM"]
-categories: ["研究生补完"]
+categories:
+  - AI Infra
+tags:
+  - AI Infra
+description: 从零实现 Transformer 的结构与代码学习笔记。
 typora-root-url: ./从0实现LLM
+typora-copy-images-to: ./从0实现LLM
 mathjax: true
 ---
-
-
 
 > [大模型《从零到一》长视频系列](https://space.bilibili.com/3546611527453161/lists/2386239?type=season)
 

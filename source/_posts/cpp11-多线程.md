@@ -1,9 +1,11 @@
----
+﻿---
 title: thread库
 date: 2025-10-01 14:51:33
-tags: ["CPP","thread"]
-categories: ["研究生补完"]
-description: 补足一下cpp的知识
+categories:
+  - C++
+tags:
+  - C++
+description: C++ thread 库与并发基础学习笔记。
 ---
 
 > [C++11 多线程编程-小白零基础到手撕线程池](https://www.bilibili.com/video/BV1d841117SH/?p=7&share_source=copy_web&vd_source=777aaa8a415b68222e598d976e64642c)

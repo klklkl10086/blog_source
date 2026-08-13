@@ -1,10 +1,11 @@
----
+﻿---
 title: Effective C plus plus
 date: 2026-05-16 21:10:10
-tags: ["CPP"]
-categories: ["CPP开发"]
-description: Effective C++ 阅读笔记和 C++ 编程准则整理
-typora-root-url: ./Effective-C-plus-plus
+categories:
+  - C++
+tags:
+  - C++
+description: Effective C++ 阅读与条款整理。
 ---
 
 > 又一次试图阅读并理解《Effective C++》 

@@ -1,14 +1,14 @@
----
+﻿---
 title: cuda编程入门
 date: 2026-03-01 20:46:44
-tags: ["CUDA"]
-categories: ["AI Infra"]
+categories:
+  - AI Infra
+tags:
+  - AI Infra
+description: CUDA 入门学习笔记，从 GPU 架构到内存模型与基础优化。
 typora-root-url: ./cuda编程入门
-description: 简单的cuda入门学习笔记,从基础到常量内存
 mathjax: true
 ---
-
-
 
 >资料:
 >

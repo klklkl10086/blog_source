@@ -1,9 +1,13 @@
----
+﻿---
 title: CPP网络编程基础
 date: 2026-02-15 17:33:03
-tags: ["Linux","CPP"]
-categories: ["CPP开发"]
-description: CPP开发基础知识,网络编程
+categories:
+  - C++
+  - Systems
+tags:
+  - C++
+  - Systems
+description: C++ 网络编程与 Linux socket 基础笔记。
 ---
 
 # 简单的通信程序

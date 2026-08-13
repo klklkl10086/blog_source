@@ -1,15 +1,12 @@
----
+﻿---
 title: javaSE
 date: 2025-10-01 22:43:52
-tags: [javaSE]
-categories: 后端开发
-description: java入门笔记
-typora-root-url: ./java基础
+categories:
+  - Backend
+tags:
+  - Backend
+description: JavaSE 基础学习笔记。
 ---
-
-
-
-
 
 # JAVA
 

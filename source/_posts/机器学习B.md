@@ -1,13 +1,15 @@
----
+﻿---
 title: 《机器学习B》课程复习笔记
 date: 2024-11-28 14:48:29
-tags: [Machine Learning]
-categories: class
-typora-root-url: ./机器学习B
+categories:
+  - AI Infra
+  - Course Notes
+tags:
+  - AI Infra
+  - Course Notes
+description: 机器学习 B 课程复习笔记。
 mathjax: true
 ---
-
-
 
 **写在前面的话**
 

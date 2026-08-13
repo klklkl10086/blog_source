@@ -1,10 +1,12 @@
----
+﻿---
 title: CPP拾遗
 date: 2026-08-01 22:57:24
-tags: ["CPP"]
-categories: ["CPP"]
+categories:
+  - C++
+tags:
+  - C++
+description: C++ 内存、STL、模板与张量广播相关知识拾遗。
 ---
-
 
 # C++ 内存、STL、模板与张量广播笔记
 

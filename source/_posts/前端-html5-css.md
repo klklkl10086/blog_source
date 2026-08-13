@@ -1,10 +1,11 @@
----
+﻿---
 title: 前端学习笔记(从html到js)
 date: 2024-09-02 08:55:50
-tags: ["html5","css","JavaScript"]
-categories: 前端
-description: 前端学习记录
-typora-root-url: ./前端-html5-css
+categories:
+  - Frontend
+tags:
+  - Frontend
+description: 从 HTML、CSS 到 JavaScript 的前端基础学习记录。
 ---
 
 # HTML5

@@ -4,9 +4,9 @@
 
 # Site
 title: klklkl's blogs
-subtitle: '学习笔记和一些思考'
-description: '学习与思考的痕迹'
-keywords:
+subtitle: 'AI Infra / C++ / Systems'
+description: '记录 AI Infra、C++、系统编程与算法学习的技术笔记'
+keywords: AI Infra,CUDA,C++,Linux,LLM,Algorithm
 author: klklkl
 language: zh-CN
 timezone: ''
@@ -102,7 +102,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: butterfly
+theme: cactus
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

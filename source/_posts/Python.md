@@ -1,10 +1,11 @@
----
-layout: pose
+﻿---
 title: Python基础知识
 date: 2024-01-14 15:15:19
-tags: Python
-categories: Python
-description: python基础语法记录
+categories:
+  - Python
+tags:
+  - Python
+description: Python 基础语法与常用知识记录。
 ---
 
 #  基本知识

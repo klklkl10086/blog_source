@@ -1,15 +1,15 @@
----
+﻿---
 title: 题解--Codeforces Round 680 [C. Division]
 date: 2024-10-02 22:44:09
-tags: [题解,codeforces,质因数分解]
-categories: 算法
-description: Codeforces Round 680 C. Division 题解
+categories:
+  - Algorithm
+tags:
+  - Algorithm
+description: Codeforces Round 680 C. Division 题解。
 mathjax: true
 typora-root-url: ./cf
 typora-copy-images-to: ./cf
 ---
-
-
 
 [C. Division](https://codeforces.com/contest/1445/problem/C)
 

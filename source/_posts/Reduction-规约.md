@@ -1,10 +1,14 @@
----
+﻿---
 title: Reduction:求和
 date: 2026-03-27 22:55:07
-tags: ["CUDA","CPP"]
-categories: ["AI Infra"]
-description: 规约求和
+categories:
+  - AI Infra
+tags:
+  - AI Infra
+description: CUDA 求和规约 kernel 优化学习笔记。
 typora-root-url: ./Reduction-规约
+typora-copy-images-to: ./Reduction-规约
+mathjax: true
 ---
 
 > 参考资料:
